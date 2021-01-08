@@ -7,3 +7,7 @@
 [submodule "external/dexed"]
 	path = external/dexed
 	url = https://github.com/atsushieno/dexed.git
+[submodule "aap-juce"]
+	path = aap-juce
+	url = https://github.com/atsushieno/aap-juce.git
+	branch = new-repo-structure
