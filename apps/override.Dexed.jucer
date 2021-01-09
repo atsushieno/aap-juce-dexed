@@ -148,7 +148,7 @@
         <MODULEPATH id="juce_data_structures" path="../../external/JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../external/JUCE/modules"/>
         <MODULEPATH id="surgesynthteam_tuningui" path="./libs"/>
-        <MODULEPATH id="juceaap_audio_plugin_client" path="../../aap-juce/modules" />
+        <MODULEPATH id="juceaap_audio_plugin_client" path="./modules" />
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX" smallIcon="SpSpb4" bigIcon="SpSpb4"
@@ -178,7 +178,7 @@
         <MODULEPATH id="juce_data_structures" path="../../external/JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../external/JUCE/modules"/>
         <MODULEPATH id="surgesynthteam_tuningui" path="./libs"/>
-        <MODULEPATH id="juceaap_audio_plugin_client" path="../../aap-juce/modules" />
+        <MODULEPATH id="juceaap_audio_plugin_client" path="./modules" />
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" windowsTargetPlatformVersion="10.0.16299.0"
@@ -208,6 +208,7 @@
         <MODULEPATH id="juce_audio_devices" path="../../external/JUCE/modules"/>
         <MODULEPATH id="juce_audio_basics" path="../../external/JUCE/modules"/>
         <MODULEPATH id="surgesynthteam_tuningui" path="./libs"/>
+        <MODULEPATH id="juceaap_audio_plugin_client" path="./modules" />
       </MODULEPATHS>
     </VS2017>
     <ANDROIDSTUDIO targetFolder="Builds/Android" extraCompilerFlags="-I${CMAKE_CURRENT_LIST_DIR}/../../../libs/tuning-library/include"
@@ -240,7 +241,7 @@
         <MODULEPATH id="juce_data_structures" path="../../external/JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../../external/JUCE/modules"/>
         <MODULEPATH id="surgesynthteam_tuningui" path="./libs"/>
-        <MODULEPATH id="juceaap_audio_plugin_client" path="../../aap-juce/modules" />
+        <MODULEPATH id="juceaap_audio_plugin_client" path="./modules" />
       </MODULEPATHS>
     </ANDROIDSTUDIO>
   </EXPORTFORMATS>
