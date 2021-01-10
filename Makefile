@@ -16,8 +16,8 @@ PATCH_FILE=-
 # diff depth, depending on the nested directory in the source tree, if patch exists.
 PATCH_DEPTH=-
 
-# 1 if it should skip metadata generator. Plugins need it, hosts don't.
-SKIP_METADATA_GENERATOR=0
+# Enable if it should skip metadata generator. Plugins need it, hosts don't.
+# SKIP_METADATA_GENERATOR=0
 
 
 include aap-juce/Makefile.common
