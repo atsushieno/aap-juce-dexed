@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<plugins>
+<plugins xmlns="urn:org.androidaudioplugin.core" xmlns:pp="urn:org.androidaudioplugin.port">
   <plugin name="Dexed" category="Synth" author="Digital Suburban" manufacturer=""
           unique-id="juceaap:44657864" library="libjuce_jni.so" entrypoint="GetJuceAAPFactory"
           assets="">
