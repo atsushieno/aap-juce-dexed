@@ -19,6 +19,9 @@ PATCH_FILE=-
 # diff depth, depending on the nested directory in the source tree, if patch exists.
 PATCH_DEPTH=-
 
+# Enable this if it is instrument (and unless you don't want to support MIDI input).
+ENABLE_MIDI_DEVICE_SERVICE=1 
+
 # Enable if it should skip metadata generator. Plugins need it, hosts don't.
 # SKIP_METADATA_GENERATOR=0
 
