@@ -25,8 +25,22 @@ jobs:
       env:
         cache-name: cache-ndk
       with:
-        path: /usr/local/lib/android/sdk/ndk/21.2.6472646
-        key: ndk_r21c_linux
+        path: /usr/local/lib/android/sdk/ndk/21.4.7075529
+        key: ${{ runner.os }}-ndk_r21e_linux
+    - name: cache AVD
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-avd
+      with:
+        path: /home/runner/.android/gradle/avd
+        key: ${{ runner.os }}-gradle-avd
+    - name: cache gradle caches
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-gradle-caches
+      with:
+        path: /home/runner/.gradle/caches/
+        key: ${{ runner.os }}-gradle-caches
     - name: apt install
       run: |
         echo y | sudo apt-get install xvfb wget unzip libc6 \
@@ -67,13 +81,25 @@ jobs:
       env:
         cache-name: cache-ndk
       with:
-        path: /Users/runner/Library/Android/sdk/ndk/21.2.6472646
-        key: ndk_r21c_osx
+        path: /Users/runner/Library/Android/sdk/ndk/21.4.7075529
+        key: ${{ runner.os }}-ndk_r21e_osx
+    - name: cache AVD
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-avd
+      with:
+        path: /Users/runner/.android/gradle/avd
+        key: ${{ runner.os }}-gradle-avd
+    - name: cache gradle caches
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-gradle-caches
+      with:
+        path: /Users/runner/.gradle/caches/
+        key: ${{ runner.os }}-gradle-caches
     - name: install deps
       run: |
         brew install doxygen pkg-config cmake coreutils ninja graphviz grpc
-    - name: workaround for https://github.com/actions/virtual-environments/issues/2228
-      run: echo "yes" | $ANDROID_HOME/tools/bin/sdkmanager "cmake;3.18.1" --channel=3
     - name: build
       run: make MINIMIZE_INTERMEDIATES=1 build dist
       env:
