@@ -128,12 +128,10 @@
                 bigIcon="SpSpb4" extraLinkerFlags="-fPIC" extraCompilerFlags="-I../../libs/tuning-library/include">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1"
-            headerPath="../../android-audio-plugin-framework/include"
-            libraryPath="/usr/X11R6/lib/;../../android-audio-plugin-framework/build/native/androidaudioplugin"
+            headerPath="../../../../external/android-audio-plugin-framework/include"
             />
         <CONFIGURATION name="Release" isDebug="0" optimisation="2"
-            headerPath="../../android-audio-plugin-framework/include"
-            libraryPath="/usr/X11R6/lib/;../../android-audio-plugin-framework/build/native/androidaudioplugin"
+            headerPath="../../../../external/android-audio-plugin-framework/include"
             />
       </CONFIGURATIONS>
       <MODULEPATHS>
@@ -157,12 +155,10 @@
                vst3Folder="libs/vst3sdk" extraCompilerFlags="-I../../libs/tuning-library/include -Wno-macro-redefined -Wno-deprecated-declarations -Wno-shorten-64-to-32">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Dexed"
-            headerPath="../../android-audio-plugin-framework/include"
-            libraryPath="../../android-audio-plugin-framework/build/native/androidaudioplugin"
+            headerPath="../../../../external/android-audio-plugin-framework/include"
                        osxCompatibility="10.10 SDK" osxArchitecture="64BitIntel" enablePluginBinaryCopyStep="1"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Dexed"
-            headerPath="../../android-audio-plugin-framework/include"
-            libraryPath="../../android-audio-plugin-framework/build/native/androidaudioplugin"
+            headerPath="../../../../external/android-audio-plugin-framework/include"
                        osxSDK="10.10 SDK" osxCompatibility="10.7 SDK" osxArchitecture="64BitUniversal"
                        enablePluginBinaryCopyStep="1"/>
       </CONFIGURATIONS>
@@ -216,17 +212,15 @@
     <ANDROIDSTUDIO targetFolder="Builds/Android" extraCompilerFlags="-I${CMAKE_CURRENT_LIST_DIR}/../../../libs/tuning-library/include"
                    androidMinimumSDK="29" androidTargetSDK="31"
                    androidManifestCustomXmlElements="&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; package=&quot;com.digitalsuburban.dexed&quot; android:versionCode=&quot;1&quot; android:versionName=&quot;0.1&quot;&gt;&#10;  &lt;uses-permission android:name=&quot;android.permission.FOREGROUND_SERVICE&quot;/&gt;&#10;  &lt;application android:allowBackup=&quot;true&quot; android:label=&quot;@string/app_name&quot;&#10;               android:supportsRtl=&quot;true&quot; android:name=&quot;com.rmsl.juce.JuceApp&quot; android:hardwareAccelerated=&quot;false&quot;&gt;&#10;    &lt;activity android:name=&quot;com.rmsl.juce.JuceActivity&quot; android:label=&quot;@string/app_name&quot; android:configChanges=&quot;keyboardHidden|orientation|screenSize&quot;&#10;              android:screenOrientation=&quot;userLandscape&quot; android:launchMode=&quot;singleTask&quot; android:hardwareAccelerated=&quot;true&quot;&gt;&#10;    &lt;service android:name=&quot;org.androidaudioplugin.AudioPluginService&quot; android:label=&quot;Dexed&quot;&gt;&#10;      &lt;intent-filter&gt;&#10;        &lt;action android:name=&quot;org.androidaudioplugin.AudioPluginService&quot;/&gt;&#10;      &lt;/intent-filter&gt;&#10;      &lt;meta-data android:name=&quot;org.androidaudioplugin.AudioPluginService#Plugins&quot; android:resource=&quot;@xml/aap_metadata&quot;/&gt;&#10;    &lt;/service&gt;&#10;  &lt;/application&gt;&#10;&lt;/manifest&gt;&#10;"
-                   androidDependencies="implementation 'org.androidaudioplugin:androidaudioplugin:0.7.0'&#10;implementation 'org.androidaudioplugin:androidaudioplugin-midi-device-service:0.7.0'&#10;implementation &quot;org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10&quot;&#10;&#10;&#10;"
+                   androidDependencies="implementation 'org.androidaudioplugin:androidaudioplugin:0.7.2'&#10;implementation 'org.androidaudioplugin:androidaudioplugin-midi-device-service:0.7.2'&#10;implementation &quot;org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10&quot;&#10;&#10;&#10;"
                    gradleVersion="7.4" gradleWrapperVersion="7.3.3-alpha03">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" 
-                       headerPath="../../android-audio-plugin-framework/include"
-                       libraryPath="../../android-audio-plugin-framework/java/androidaudioplugin/build/intermediates/cmake/debug/obj/${ANDROID_ABI}"
+                       headerPath="../../../../external/android-audio-plugin-framework/include"
                        optimisation="1" linkTimeOptimisation="0"
                        recommendedWarnings="LLVM"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" linkTimeOptimisation="1"
-                       headerPath="../../android-audio-plugin-framework/include"
-                       libraryPath="../../android-audio-plugin-framework/java/androidaudioplugin/build/intermediates/cmake/release/obj/${ANDROID_ABI}"
+                       headerPath="../../../../external/android-audio-plugin-framework/include"
                        recommendedWarnings="LLVM"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
