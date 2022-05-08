@@ -4,6 +4,9 @@
   <plugin name="Dexed" category="Instrument" author="Digital Suburban" manufacturer=""
           unique-id="juceaap:44657864" library="libjuce_jni.so" entrypoint="GetJuceAAPFactory"
           assets="">
+    <extensions>
+      <extension uri="urn://androidaudioplugin.org/extensions/presets/v1" />
+    </extensions>
     <ports>
       <port direction="output" content="audio" name="Left"/>
       <port direction="output" content="audio" name="Right"/>
