@@ -386,10 +386,10 @@ diff --git a/libs/surgesynthteam_tuningui b/libs/surgesynthteam_tuningui
 @@ -1 +1 @@
 -Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75
 +Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75-dirty
-diff --git a/surgesynthteam_tuningui.h b/surgesynthteam_tuningui.h
+diff --git a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
 index fa17052..7353e0e 100644
---- a/surgesynthteam_tuningui.h
-+++ b/surgesynthteam_tuningui.h
+--- a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
++++ b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
 @@ -177,6 +177,7 @@ public:
      }
  
