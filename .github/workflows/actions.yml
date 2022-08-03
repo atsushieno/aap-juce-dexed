@@ -56,7 +56,7 @@ jobs:
     - name: workaround for https://github.com/actions/virtual-environments/issues/2228
       run: echo "yes" | $ANDROID_HOME/tools/bin/sdkmanager "cmake;3.18.1" --channel=3
     - name: build
-      run: xvfb-run -a --server-args="-screen 0 1280x800x24 -ac -nolisten tcp -dpi 96 +extension RANDR" make MINIMIZE_INTERMEDIATES=1 build dist
+      run: make
     - name: upload-artifact
       uses: actions/upload-artifact@v1
       with:
