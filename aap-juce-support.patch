@@ -1,0 +1,420 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6a1afa7..b233dda 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -25,11 +25,24 @@ endif()
+ #static linking in Windows
+ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+ 
++# build settings for JUCEAAP
++add_definitions(
++        "-DJUCEAAP_USE_UNIQUE_ID=1"
++        "-DJUCEAAP_HOSTED_PARAMETER=1"
++        "-DJUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1"
++)
++
+ # include JUCE *AFTER* the MSVC runtime and so on is set up
++if(ANDROID)
++set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/../external/dexed/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
++else(ANDROID)
+ set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
++endif(ANDROID)
+ add_subdirectory(${DEXED_JUCE_PATH} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
++if(false) # CLAP does not work on Android
+ add_subdirectory(libs/clap-juce-extensions EXCLUDE_FROM_ALL)
+-
++endif(false)
++message("###### DEXED_JUCE_PATH: ${DEXED_JUCE_PATH}")
+ 
+ 
+ #Adds all the module sources so they appear correctly in the IDE
+diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
+index f98357c..9c1d209 100644
+--- a/Source/CMakeLists.txt
++++ b/Source/CMakeLists.txt
+@@ -29,9 +29,35 @@ juce_add_plugin("${BaseTargetName}"
+         DESCRIPTION "Dexed FM Synth"
+ )
+ 
++# begin JUCEAAP specific -->
++include_directories(
++              "${AAP_DIR}/include"
++              "${JUCE_DIR}/modules"
++)
++
++# It is not beautiful, but there does not seem to be any way to add custom include directory for modules.
++juce_add_module(${AAP_JUCE_DIR}/modules/juceaap_audio_plugin_client)
++juce_add_module(${AAP_JUCE_DIR}/modules/juceaap_audio_processors)
++
++if (ANDROID)
++
++# dependencies
++find_library(log "log")
++find_library(android "android")
++find_library(glesv2 "GLESv2")
++find_library(egl "EGL")
++set(cpufeatures_lib "cpufeatures")
++set(oboe_lib "oboe")
++set(CMAKE_CXX_FLAGS_RELEASE "-O3")
++
++endif (ANDROID)
++# <-- end JUCEAAP specific
++
++if(!ANDROID)
+ clap_juce_extensions_plugin(TARGET ${BaseTargetName}
+         CLAP_ID "com.digital-suburban.dexed"
+         CLAP_FEATURES instrument FM DX7)
++endif()
+ 
+ juce_generate_juce_header(${PROJECT_NAME})
+ 
+@@ -110,3 +136,22 @@ PUBLIC
+     juce::juce_recommended_config_flags
+     juce::juce_recommended_lto_flags
+ )
++
++### AAP except for module
++
++target_link_libraries(${BaseTargetName} 
++      PRIVATE
++      juceaap_audio_plugin_client
++      juceaap_audio_processors
++)
++
++if(ANDROID)
++target_link_libraries(${BaseTargetName} 
++    PRIVATE
++    ${log}
++    ${android}
++    ${glesv2}
++    ${egl}
++    ${cpufeatures_lib}
++    )
++endif()
+diff --git a/Source/CartManager.cpp b/Source/CartManager.cpp
+index 3bd0b1b..958be6d 100644
+--- a/Source/CartManager.cpp
++++ b/Source/CartManager.cpp
+@@ -174,9 +174,10 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
+     
+     if ( buttonThatWasClicked == loadButton.get() ) {
+         FileChooser fc ("Import original DX sysex...", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), "*.syx;*.SYX;*.*", 1);
+-        
+-        if ( fc.browseForFileToOpen())
++
++        fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
+             mainWindow->loadCart(fc.getResult());
++        });
+         return;
+     }
+     
+@@ -228,8 +229,9 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
+         }
+         menu.addSeparator();
+         menu.addItem(1020, "Refresh");
+-        
+-        switch(menu.show()) {
++
++        menu.showMenuAsync(PopupMenu::Options{}, [=](int result) {
++        switch(result) {
+         case 1000:
+             file.revealToUser();
+             break;
+@@ -239,7 +241,7 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
+         case 1020:
+             cartBrowserList->refresh();
+             break;
+-        }
++        }});
+         return;
+     }
+ }
+@@ -289,7 +291,8 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
+     if ( source == activeCart.get() )
+         menu.addItem(1010, "Send current sysex cartridge to DX7");
+ 
+-    switch(menu.show())  {
++    menu.showMenuAsync(PopupMenu::Options{}, [&](int result) {
++    switch(result)  {
+         case 1000:
+             uint8_t unpackPgm[161];
+             
+@@ -309,7 +312,7 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
+         case 1010:
+             mainWindow->processor->sendCurrentSysexCartridge();
+             break;
+-    }
++    }});
+ 
+ }
+ 
+diff --git a/Source/GlobalEditor.cpp b/Source/GlobalEditor.cpp
+index 38bc0a4..14fbc58 100644
+--- a/Source/GlobalEditor.cpp
++++ b/Source/GlobalEditor.cpp
+@@ -648,13 +648,13 @@ void GlobalEditor::buttonClicked (juce::Button* buttonThatWasClicked)
+         repaint();
+         //[/UserButtonCode_monoMode]
+     }
+-    else if (buttonThatWasClicked == aboutButton.get())
++    /*else if (buttonThatWasClicked == aboutButton.get())
+     {
+         //[UserButtonCode_aboutButton] -- add your button handler code here..
+         AboutBox about(this->getParentComponent());
+         about.runModalLoop();
+         //[/UserButtonCode_aboutButton]
+-    }
++    }*/
+ 
+     //[UserbuttonClicked_Post]
+     //[/UserbuttonClicked_Post]
+@@ -736,7 +736,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
+         PopupMenu popup;
+         popup.addItem(1, "Send current program to DX7");
+ 
+-        auto p = popup.show();
++        popup.showMenuAsync(PopupMenu::Options{}, [=](int p) {
+         switch( p )
+         {
+         case 1:
+@@ -744,7 +744,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
+            break;
+         default:
+             break;
+-        }
++        }});
+     }
+ }
+ //[/MiscUserCode]
+diff --git a/Source/OperatorEditor.cpp b/Source/OperatorEditor.cpp
+index b55d637..08b606d 100644
+--- a/Source/OperatorEditor.cpp
++++ b/Source/OperatorEditor.cpp
+@@ -580,7 +580,8 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
+         popup.addSeparator();
+         popup.addItem(4, "Send current program to DX7");
+ 
+-        switch(popup.show()) {
++        popup.showMenuAsync(PopupMenu::Options{},[&](int result) {
++        switch(result) {
+             case 1:
+                 processor->copyToClipboard(internalOp);
+             break;
+@@ -596,7 +597,7 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
+             case 4:
+                 processor->sendCurrentSysexProgram();
+             break;
+-        }
++        }});
+ 
+     }
+ }
+diff --git a/Source/PluginEditor.cpp b/Source/PluginEditor.cpp
+index 9d58f39..d650ada 100644
+--- a/Source/PluginEditor.cpp
++++ b/Source/PluginEditor.cpp
+@@ -125,10 +125,10 @@ void DexedAudioProcessorEditor::loadCart(File file) {
+     }
+     
+     if ( rc != 0 ) {
+-        rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
++        /*rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
+                                           "This sysex file is not for the DX7 or it is corrupted. "
+                                           "Do you still want to load this file as random data ?");
+-        if ( rc == 0 )
++        if ( rc == 0 )*/
+             return;
+     }
+     
+@@ -145,13 +145,13 @@ void DexedAudioProcessorEditor::saveCart() {
+     File startFileName = processor->activeFileCartridge.exists() ? processor->activeFileCartridge : processor->dexedCartDir;
+ 
+     FileChooser fc ("Export DX sysex...", processor->dexedCartDir, "*.syx;*.SYX", 1);
+-    if ( fc.browseForFileToSave(true) ) {
++    fc.launchAsync(FileBrowserComponent::saveMode, [=](const FileChooser& fc) {
+         if ( ! processor->currentCart.saveVoice(fc.getResults().getReference(0)) ) {
+             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                               "Error",
+                                               "Unable to write: " + fc.getResults().getReference(0).getFullPathName());
+         }
+-    }
++    });
+ }
+ 
+ void DexedAudioProcessorEditor::tuningShow() {
+@@ -285,6 +285,9 @@ void DexedAudioProcessorEditor::rebuildProgramCombobox() {
+ }
+ 
+ void DexedAudioProcessorEditor::storeProgram() {
++#if ANDROID
++    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Not Supported", "We don't support storing proglrams on Android build yet.");
++#else
+     String currentName = Cartridge::normalizePgmName((const char *) processor->data+145);
+     Cartridge destSysex = processor->currentCart;
+     File *externalFile = NULL;
+@@ -383,6 +386,7 @@ void DexedAudioProcessorEditor::storeProgram() {
+     if ( externalFile != NULL )
+         delete externalFile;
+     cartManager.resetActiveSysex();
++#endif
+ }
+ 
+ class MidiCCListener: public AlertWindow, Value::Listener {
+@@ -412,8 +416,12 @@ public :
+ };
+ 
+ void DexedAudioProcessorEditor::discoverMidiCC(Ctrl *ctrl) {
++#if ANDROID
++    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Not Supported", "We don't support storing proglrams on Android build yet.");
++#else
+     MidiCCListener ccListener(this, ctrl);
+     ccListener.runModalLoop();
++#endif
+ }
+ 
+ bool DexedAudioProcessorEditor::isInterestedInFileDrag (const StringArray &files)
+diff --git a/Source/PluginParam.cpp b/Source/PluginParam.cpp
+index c789ef1..98fe8d4 100644
+--- a/Source/PluginParam.cpp
++++ b/Source/PluginParam.cpp
+@@ -294,16 +294,17 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
+         }
+         popup.addItem(2, "Clear midi CC mapping");
+ 
+-        switch(popup.show()) {
++        popup.showMenuAsync(PopupMenu::Options{}, [&](int result) {
++        switch(result) {
+             case 1:
+                 parent->mappedMidiCC.removeValue(this);
+                 parent->savePreference();
+                 break;
+             case 2:
+-                if ( AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Confirm", "Clear midi mapping for all controller change (CC) messages?", "YES", "NO", "CANCEL") ) {
++                //if ( AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Confirm", "Clear midi mapping for all controller change (CC) messages?", "YES", "NO", "CANCEL") ) {
+                     parent->mappedMidiCC.clear();
+                     parent->savePreference();
+-                }
++                //}
+                 break;
+             case 3:
+                 AudioProcessorEditor *editor = parent->getActiveEditor();
+@@ -313,7 +314,7 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
+                 DexedAudioProcessorEditor *dexedEditor = (DexedAudioProcessorEditor *) editor;
+                 dexedEditor->discoverMidiCC(this);
+                 break;
+-        }
++        }});
+     }
+ }
+ 
+diff --git a/Source/PluginProcessor.cpp b/Source/PluginProcessor.cpp
+index f2c3817..bbe39c7 100644
+--- a/Source/PluginProcessor.cpp
++++ b/Source/PluginProcessor.cpp
+@@ -814,10 +814,10 @@ AudioProcessorEditor* DexedAudioProcessor::createEditor() {
+ 
+ void DexedAudioProcessor::setDpiScaleFactor(float factor) {
+     // Currently the clap juce wrapper doesn't work with this deprecated scale factor direct set so
+-    if ( is_clap ) {
++    /*if ( is_clap ) {
+         dpiScaleFactor = 1.0;
+         return;
+-    }
++    }*/
+     dpiScaleFactor = factor;
+     
+     // The scale factor needs to be done after object creation otherwise Bitwig, Live and REAPER can't render the
+@@ -858,11 +858,10 @@ void DexedAudioProcessor::retuneToStandard()
+ 
+ void DexedAudioProcessor::applySCLTuning() {
+     FileChooser fc( "Please select an SCL File", File(), "*.scl" );
+-    if( fc.browseForFileToOpen() )
+-    {
++    fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
+         auto s = fc.getResult();
+         applySCLTuning(s);
+-    }
++    });
+ }
+ 
+ void DexedAudioProcessor::applySCLTuning(File s) {
+@@ -887,11 +886,10 @@ void DexedAudioProcessor::applySCLTuning(std::string sclcontents) {
+ 
+ void DexedAudioProcessor::applyKBMMapping() {
+     FileChooser fc( "Please select an KBM File", File(), "*.kbm" );
+-    if( fc.browseForFileToOpen() )
+-    {
++    fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
+         auto s = fc.getResult();
+         applyKBMMapping(s);
+-    }
++    });
+ }
+ 
+ void DexedAudioProcessor::applyKBMMapping( File s )
+diff --git a/Source/PluginProcessor.h b/Source/PluginProcessor.h
+index a95b170..90e13f5 100644
+--- a/Source/PluginProcessor.h
++++ b/Source/PluginProcessor.h
+@@ -23,7 +23,7 @@
+ 
+ #include "../JuceLibraryCode/JuceHeader.h"
+ 
+-#include "clap-juce-extensions/clap-juce-extensions.h"
++//#include "clap-juce-extensions/clap-juce-extensions.h"
+ 
+ #include "msfa/controllers.h"
+ #include "msfa/dx7note.h"
+@@ -62,7 +62,7 @@ enum DexedEngineResolution {
+ //==============================================================================
+ /**
+ */
+-class DexedAudioProcessor  : public AudioProcessor, public AsyncUpdater, public MidiInputCallback, public clap_juce_extensions::clap_properties
++class DexedAudioProcessor  : public AudioProcessor, public AsyncUpdater, public MidiInputCallback/*, public clap_juce_extensions::clap_properties*/
+ {
+     static const int MAX_ACTIVE_NOTES = 16;
+     ProcessorVoice voices[MAX_ACTIVE_NOTES];
+diff --git a/libs/JUCE b/libs/JUCE
+--- a/libs/JUCE
++++ b/libs/JUCE
+@@ -1 +1 @@
+-Subproject commit b08520c2de1771af3dfcbfbc0e0b6b0b5eb083b0
++Subproject commit b08520c2de1771af3dfcbfbc0e0b6b0b5eb083b0-dirty
+diff --git a/libs/surgesynthteam_tuningui b/libs/surgesynthteam_tuningui
+--- a/libs/surgesynthteam_tuningui
++++ b/libs/surgesynthteam_tuningui
+@@ -1 +1 @@
+-Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75
++Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75-dirty
+diff --git a/surgesynthteam_tuningui.h b/surgesynthteam_tuningui.h
+index fa17052..7353e0e 100644
+--- a/surgesynthteam_tuningui.h
++++ b/surgesynthteam_tuningui.h
+@@ -177,6 +177,7 @@ public:
+     }
+ 
+     virtual void cellClicked (int rowNumber, int columnId, const juce::MouseEvent & e) override {
++#if false // not supported in AAP (including metadata generator)
+         if( e.mods.isRightButtonDown() )
+         {
+             rmbMenu->clear();
+@@ -185,9 +186,11 @@ public:
+             if( result == 1 )
+                 exportToCSV();
+         }
++#endif
+     }
+ 
+     virtual void exportToCSV() {
++#if false // not supported in AAP (including metadata generator)
+         juce::FileChooser fc( "Export CSV to...", juce::File(), "*.csv" );
+         if( fc.browseForFileToSave(true) )
+         {
+@@ -207,6 +210,7 @@ public:
+ 
+             }
+         }
++#endif
+     }
+        
+ 

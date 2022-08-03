@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugins xmlns="urn:org.androidaudioplugin.core" xmlns:pp="urn:org.androidaudioplugin.port">
-  <plugin name="Dexed" category="Instrument" author="Digital Suburban" manufacturer=""
-          unique-id="juceaap:44657864" library="libjuce_jni.so" entrypoint="GetJuceAAPFactory"
-          assets="">
+  <plugin name="Dexed" category="Instrument" author="Digital Suburban"
+          manufacturer="" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" assets="">
     <extensions>
-      <extension uri="urn://androidaudioplugin.org/extensions/presets/v1" />
+      <extension uri="urn://androidaudioplugin.org/extensions/presets/v1"/>
     </extensions>
     <ports>
       <port direction="output" content="audio" name="Left"/>
       <port direction="output" content="audio" name="Right"/>
-      <port direction="input" content="audio" name="Left"/>
-      <port direction="input" content="audio" name="Right"/>
       <port direction="input" content="midi" name="MIDI input"/>
       <port direction="output" content="midi" name="MIDI output"/>
     </ports>

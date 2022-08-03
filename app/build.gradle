@@ -1,0 +1,49 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+
+android {
+    compileSdkVersion 32
+
+    defaultConfig {
+        applicationId "org.androidaudioplugin.samples.dexed"
+        minSdkVersion    30
+        targetSdkVersion 32
+        externalNativeBuild {
+            cmake {
+                arguments "-DJUCE_DIR=${System.env.JUCE_DIR != null ? System.env.JUCE_DIR : ''}", "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : ''}", "-DAAP_JUCE_DIR=${System.env.AAP_JUCE_DIR != null ? System.env.AAP_JUCE_DIR : ''}", "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=exceptions rtti"
+            }
+        }
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+
+    sourceSets {
+        main.java.srcDirs +=
+            ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app"]
+        main.res.srcDirs +=
+            []
+    }
+
+    dependencies {
+        implementation "androidx.core:core-ktx:1.7.0"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        implementation "androidx.startup:startup-runtime:1.1.1"
+        implementation "dev.atsushieno:libcxx-provider:$ndk_version"
+        implementation "org.androidaudioplugin:androidaudioplugin:$aap_version"
+        implementation "org.androidaudioplugin:androidaudioplugin-midi-device-service:$aap_version"
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+    ndkVersion "$ndk_version"
+}
+

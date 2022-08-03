@@ -1,0 +1,6 @@
+<devices>
+    <device name="Dexed" manufacturer="androidaudioplugin.org" product="Dexed">
+        <input-port name="input" />
+    </device>
+</devices>
+

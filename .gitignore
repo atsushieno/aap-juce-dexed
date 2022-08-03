@@ -1,2 +1,7 @@
-apps/dexed
+local.properties
+.idea
+.cxx
+build
+.gradle
+release-builds
 
