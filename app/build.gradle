@@ -5,12 +5,12 @@ plugins {
 
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "org.androidaudioplugin.samples.dexed"
-        minSdkVersion    30
-        targetSdkVersion 32
+        minSdkVersion    29
+        targetSdkVersion 33
         externalNativeBuild {
             cmake {
                 arguments "-DJUCE_DIR=${System.env.JUCE_DIR != null ? System.env.JUCE_DIR : ''}", "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : ''}", "-DAAP_JUCE_DIR=${System.env.AAP_JUCE_DIR != null ? System.env.AAP_JUCE_DIR : ''}", "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=exceptions rtti"
@@ -27,7 +27,7 @@ android {
     }
 
     dependencies {
-        implementation "androidx.core:core-ktx:1.7.0"
+        implementation "androidx.core:core-ktx:1.9.0"
         implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         implementation "androidx.startup:startup-runtime:1.1.1"
         implementation "dev.atsushieno:libcxx-provider:$ndk_version"
