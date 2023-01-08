@@ -21,7 +21,7 @@ if ("${AAP_JUCE_DIR}" STREQUAL "")
 get_filename_component(AAP_JUCE_DIR "../external/aap-juce" ABSOLUTE)
 endif ()
 if ("${AAP_DIR}" STREQUAL "")
-get_filename_component(AAP_DIR "../external/android-audio-plugin-framework" ABSOLUTE)
+get_filename_component(AAP_DIR "../external/aap-core" ABSOLUTE)
 endif ()
 
 message("##### JUCE_DIR: " ${JUCE_DIR})
