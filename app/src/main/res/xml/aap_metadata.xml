@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugins xmlns="urn:org.androidaudioplugin.core">
-  <plugin name="Dexed" category="Instrument" author="Digital Suburban"
+  <plugin name="AAP Dexed" category="Instrument" author="AAP / Digital Suburban"
           manufacturer="" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
           entrypoint="GetJuceAAPFactoryStandalone" assets="">
     <extensions>

@@ -8,7 +8,7 @@ android {
     compileSdkVersion 33
 
     defaultConfig {
-        applicationId "org.androidaudioplugin.samples.dexed"
+        applicationId "org.androidaudioplugin.ports.juce.dexed"
         minSdkVersion    29
         targetSdkVersion 33
         externalNativeBuild {
