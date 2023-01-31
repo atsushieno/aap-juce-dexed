@@ -374,39 +374,27 @@ index a95b170..90e13f5 100644
  {
      static const int MAX_ACTIVE_NOTES = 16;
      ProcessorVoice voices[MAX_ACTIVE_NOTES];
-diff --git a/libs/JUCE b/libs/JUCE
---- a/libs/JUCE
-+++ b/libs/JUCE
-@@ -1 +1 @@
--Subproject commit b08520c2de1771af3dfcbfbc0e0b6b0b5eb083b0
-+Subproject commit b08520c2de1771af3dfcbfbc0e0b6b0b5eb083b0-dirty
-diff --git a/libs/surgesynthteam_tuningui b/libs/surgesynthteam_tuningui
---- a/libs/surgesynthteam_tuningui
-+++ b/libs/surgesynthteam_tuningui
-@@ -1 +1 @@
--Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75
-+Subproject commit 54f9a74cd55cdb33fb4d32d706067626857cfc75-dirty
+Submodule libs/surgesynthteam_tuningui contains modified content
 diff --git a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
-index fa17052..7353e0e 100644
+index fa17052..79b104d 100644
 --- a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
 +++ b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
-@@ -177,6 +177,7 @@ public:
-     }
- 
+@@ -179,15 +179,18 @@ public:
      virtual void cellClicked (int rowNumber, int columnId, const juce::MouseEvent & e) override {
-+#if false // not supported in AAP (including metadata generator)
          if( e.mods.isRightButtonDown() )
          {
++#if !ANDROID // TODO: implement
              rmbMenu->clear();
-@@ -185,9 +186,11 @@ public:
+             rmbMenu->addItem(1, "Export to CSV" );
+             auto result = rmbMenu->show();
              if( result == 1 )
                  exportToCSV();
-         }
 +#endif
+         }
      }
  
      virtual void exportToCSV() {
-+#if false // not supported in AAP (including metadata generator)
++#if !ANDROID // TODO: implement
          juce::FileChooser fc( "Export CSV to...", juce::File(), "*.csv" );
          if( fc.browseForFileToSave(true) )
          {
