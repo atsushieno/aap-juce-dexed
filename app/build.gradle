@@ -21,7 +21,8 @@ android {
 
     sourceSets {
         main.java.srcDirs +=
-            ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app"]
+            ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app",
+             "../external/aap-juce/java"]
         main.res.srcDirs +=
             []
     }

@@ -46,7 +46,7 @@
         android:exported="false"
         tools:replace="android:authorities"
         tools:node="merge">
-        <meta-data android:name="dev.atsushieno.juce.JuceAppInitializer" android:value="androidx.startup" />
+        <meta-data android:name="org.androidaudioplugin.juce.JuceAppInitializer" android:value="androidx.startup" />
     </provider>
   </application>
 </manifest>
