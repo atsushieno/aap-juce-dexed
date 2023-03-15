@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6a1afa7..b233dda 100644
+index 6a1afa7..d5d7704 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -25,11 +25,24 @@ endif()
+@@ -25,11 +25,19 @@ endif()
  #static linking in Windows
  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
  
@@ -14,22 +14,17 @@ index 6a1afa7..b233dda 100644
 +)
 +
  # include JUCE *AFTER* the MSVC runtime and so on is set up
-+if(ANDROID)
-+set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/../external/dexed/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
-+else(ANDROID)
  set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
-+endif(ANDROID)
  add_subdirectory(${DEXED_JUCE_PATH} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
 +if(false) # CLAP does not work on Android
  add_subdirectory(libs/clap-juce-extensions EXCLUDE_FROM_ALL)
 -
 +endif(false)
-+message("###### DEXED_JUCE_PATH: ${DEXED_JUCE_PATH}")
  
  
  #Adds all the module sources so they appear correctly in the IDE
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..9c1d209 100644
+index f98357c..0df6191 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
 @@ -29,9 +29,35 @@ juce_add_plugin("${BaseTargetName}"
@@ -42,9 +37,7 @@ index f98357c..9c1d209 100644
 +              "${JUCE_DIR}/modules"
 +)
 +
-+# It is not beautiful, but there does not seem to be any way to add custom include directory for modules.
-+juce_add_module(${AAP_JUCE_DIR}/modules/juceaap_audio_plugin_client)
-+juce_add_module(${AAP_JUCE_DIR}/modules/juceaap_audio_processors)
++juce_add_modules(${AAP_JUCE_DIR}/aap-modules/juceaap_audio_plugin_client)
 +
 +if (ANDROID)
 +
@@ -57,6 +50,8 @@ index f98357c..9c1d209 100644
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 +
++add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]])
++
 +endif (ANDROID)
 +# <-- end JUCEAAP specific
 +
@@ -68,7 +63,7 @@ index f98357c..9c1d209 100644
  
  juce_generate_juce_header(${PROJECT_NAME})
  
-@@ -110,3 +136,22 @@ PUBLIC
+@@ -110,3 +136,21 @@ PUBLIC
      juce::juce_recommended_config_flags
      juce::juce_recommended_lto_flags
  )
@@ -78,7 +73,6 @@ index f98357c..9c1d209 100644
 +target_link_libraries(${BaseTargetName} 
 +      PRIVATE
 +      juceaap_audio_plugin_client
-+      juceaap_audio_processors
 +)
 +
 +if(ANDROID)
