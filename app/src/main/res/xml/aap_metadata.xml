@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugins xmlns="urn:org.androidaudioplugin.core">
-  <plugin name="AAP Dexed" category="Instrument" author="AAP / Digital Suburban"
-          manufacturer="" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
+  <plugin name="AAP Dexed" category="Instrument" developer="AAP / Digital Suburban"
+          unique-id="juceaap:44657864" library="libDexed_Standalone.so"
           entrypoint="GetJuceAAPFactoryStandalone" assets="">
     <extensions>
+      <extension uri="urn://androidaudioplugin.org/extensions/state/v1"/>
       <extension uri="urn://androidaudioplugin.org/extensions/presets/v1"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/midi/v1"/>
     </extensions>
     <parameters xmlns="urn://androidaudioplugin.org/extensions/parameters">
       <parameter id="0" name="Cutoff" direction="input" minimum="0.0" maximum="1.0"

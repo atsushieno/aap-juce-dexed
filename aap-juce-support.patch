@@ -24,37 +24,13 @@ index 6a1afa7..d5d7704 100644
  
  #Adds all the module sources so they appear correctly in the IDE
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..0df6191 100644
+index f98357c..962ba87 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -29,9 +29,35 @@ juce_add_plugin("${BaseTargetName}"
+@@ -29,9 +29,11 @@ juce_add_plugin("${BaseTargetName}"
          DESCRIPTION "Dexed FM Synth"
  )
  
-+# begin JUCEAAP specific -->
-+include_directories(
-+              "${AAP_DIR}/include"
-+              "${JUCE_DIR}/modules"
-+)
-+
-+juce_add_modules(${AAP_JUCE_DIR}/aap-modules/juceaap_audio_plugin_client)
-+
-+if (ANDROID)
-+
-+# dependencies
-+find_library(log "log")
-+find_library(android "android")
-+find_library(glesv2 "GLESv2")
-+find_library(egl "EGL")
-+set(cpufeatures_lib "cpufeatures")
-+set(oboe_lib "oboe")
-+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-+
-+add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]])
-+
-+endif (ANDROID)
-+# <-- end JUCEAAP specific
-+
 +if(!ANDROID)
  clap_juce_extensions_plugin(TARGET ${BaseTargetName}
          CLAP_ID "com.digital-suburban.dexed"
@@ -63,20 +39,38 @@ index f98357c..0df6191 100644
  
  juce_generate_juce_header(${PROJECT_NAME})
  
-@@ -110,3 +136,21 @@ PUBLIC
+@@ -110,3 +112,40 @@ PUBLIC
      juce::juce_recommended_config_flags
      juce::juce_recommended_lto_flags
  )
 +
-+### AAP except for module
-+
-+target_link_libraries(${BaseTargetName} 
-+      PRIVATE
-+      juceaap_audio_plugin_client
++# begin JUCEAAP specific -->
++include_directories(
++		"${AAP_DIR}/include"
++		"${JUCE_DIR}/modules"
 +)
 +
-+if(ANDROID)
-+target_link_libraries(${BaseTargetName} 
++juce_add_modules(${AAP_JUCE_DIR}/aap-modules/juceaap_audio_plugin_client)
++
++target_link_libraries(${BaseTargetName}
++		PRIVATE
++		juceaap_audio_plugin_client
++		)
++
++if (ANDROID)
++
++	# dependencies
++	find_library(log "log")
++	find_library(android "android")
++	find_library(glesv2 "GLESv2")
++	find_library(egl "EGL")
++	set(cpufeatures_lib "cpufeatures")
++	set(oboe_lib "oboe")
++	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
++
++	add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]])
++
++target_link_libraries(${BaseTargetName}
 +    PRIVATE
 +    ${log}
 +    ${android}
@@ -85,6 +79,7 @@ index f98357c..0df6191 100644
 +    ${cpufeatures_lib}
 +    )
 +endif()
++# <-- end JUCEAAP specific
 diff --git a/Source/CartManager.cpp b/Source/CartManager.cpp
 index 3bd0b1b..958be6d 100644
 --- a/Source/CartManager.cpp
