@@ -3,6 +3,9 @@ plugins {
     id 'kotlin-android'
 }
 
+kotlin {
+    jvmToolchain(11)
+}
 
 android {
     namespace "org.androidaudioplugin.ports.juce.dexed"
@@ -50,5 +53,11 @@ android {
     }
 
     ndkVersion libs.versions.ndk.get()
+
+    // FIXME: remove this once we upgraded to Gradle 8.1 (AGP issue)
+    compileOptions {
+        sourceCompatibility = 11
+        targetCompatibility = 11
+    }
 }
 

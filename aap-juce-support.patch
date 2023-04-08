@@ -1,46 +1,46 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6a1afa7..1c77076 100644
+index 6a1afa7..8c41135 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -25,11 +25,21 @@ endif()
+@@ -25,6 +25,13 @@ endif()
  #static linking in Windows
  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
  
 +# build settings for JUCEAAP
 +add_definitions(
-+        -DJUCEAAP_USE_UNIQUE_ID=1
-+        -DJUCEAAP_HOSTED_PARAMETER=1
-+        -DJUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1
-+        -DJUCE_PUSH_NOTIFICATIONS_ACTIVITY="com/rmsl/juce/JuceActivity"
-+        -DJUCE_PUSH_NOTIFICATIONS=1
-+        -DJUCE_USE_ANDROID_OBOE_STABILIZED_CALLBACK=1
++        "-DJUCEAAP_USE_UNIQUE_ID=1"
++        "-DJUCEAAP_HOSTED_PARAMETER=1"
++        "-DJUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1"
 +)
 +
  # include JUCE *AFTER* the MSVC runtime and so on is set up
  set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
  add_subdirectory(${DEXED_JUCE_PATH} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
- add_subdirectory(libs/clap-juce-extensions EXCLUDE_FROM_ALL)
--
-+message("###### DEXED_JUCE_PATH: ${DEXED_JUCE_PATH}")
- 
- 
- #Adds all the module sources so they appear correctly in the IDE
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..58aa07d 100644
+index f98357c..95a579a 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -29,6 +29,30 @@ juce_add_plugin("${BaseTargetName}"
-         DESCRIPTION "Dexed FM Synth"
+@@ -110,3 +110,45 @@ PUBLIC
+     juce::juce_recommended_config_flags
+     juce::juce_recommended_lto_flags
  )
- 
++
 +# begin JUCEAAP specific -->
++
 +include_directories(
-+              "${AAP_DIR}/include"
++		"${AAP_DIR}/include"
++		"${JUCE_DIR}/modules"
 +)
 +
-+juce_add_module(${AAP_JUCE_DIR}/aap-modules/juceaap_audio_plugin_client)
++juce_add_modules(${AAP_JUCE_DIR}/aap-modules/aap_audio_processors)
++target_link_libraries(${BaseTargetName}
++		PRIVATE
++		aap_audio_processors
++		)
 +
 +if (ANDROID)
++add_library("cpufeatures" STATIC "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
++set_source_files_properties("${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c" PROPERTIES COMPILE_FLAGS "-Wno-sign-conversion -Wno-gnu-statement-expression")
 +
 +# dependencies
 +find_library(log "log")
@@ -51,39 +51,23 @@ index f98357c..58aa07d 100644
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 +
-+target_include_directories(${BaseTargetName} PRIVATE
-+	"${ANDROID_NDK}/sources/android/cpufeatures")
++add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]]
++		[[JUCE_PUSH_NOTIFICATIONS_ACTIVITY="com/rmsl/juce/JuceActivity"]]
++		[[JUCE_PUSH_NOTIFICATIONS=1]]
++		[[JUCE_USE_ANDROID_OBOE_STABILIZED_CALLBACK=1]])
 +
-+endif (ANDROID)
-+# <-- end JUCEAAP specific
-+
- clap_juce_extensions_plugin(TARGET ${BaseTargetName}
-         CLAP_ID "com.digital-suburban.dexed"
-         CLAP_FEATURES instrument FM DX7)
-@@ -110,3 +134,21 @@ PUBLIC
-     juce::juce_recommended_config_flags
-     juce::juce_recommended_lto_flags
- )
-+
-+### AAP except for module
-+
-+target_link_libraries(${BaseTargetName} 
-+      PRIVATE
-+      juceaap_audio_plugin_client
-+)
-+
-+if(ANDROID)
-+target_link_libraries(${BaseTargetName} 
++target_link_libraries(${BaseTargetName}
 +    PRIVATE
 +    ${log}
 +    ${android}
 +    ${glesv2}
 +    ${egl}
++    ${cpufeatures_lib}
 +    )
-+add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]])
-+endif()
++endif (ANDROID)
++# <-- end JUCEAAP specific
 diff --git a/Source/CartManager.cpp b/Source/CartManager.cpp
-index 3bd0b1b..958be6d 100644
+index 3bd0b1b..1d8c3c3 100644
 --- a/Source/CartManager.cpp
 +++ b/Source/CartManager.cpp
 @@ -174,9 +174,10 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
@@ -140,20 +124,25 @@ index 3bd0b1b..958be6d 100644
  }
  
 diff --git a/Source/GlobalEditor.cpp b/Source/GlobalEditor.cpp
-index 38bc0a4..9ea1345 100644
+index 38bc0a4..1be48ec 100644
 --- a/Source/GlobalEditor.cpp
 +++ b/Source/GlobalEditor.cpp
-@@ -651,8 +651,8 @@ void GlobalEditor::buttonClicked (juce::Button* buttonThatWasClicked)
-     else if (buttonThatWasClicked == aboutButton.get())
+@@ -648,13 +648,13 @@ void GlobalEditor::buttonClicked (juce::Button* buttonThatWasClicked)
+         repaint();
+         //[/UserButtonCode_monoMode]
+     }
+-    else if (buttonThatWasClicked == aboutButton.get())
++    /*else if (buttonThatWasClicked == aboutButton.get())
      {
          //[UserButtonCode_aboutButton] -- add your button handler code here..
--        AboutBox about(this->getParentComponent());
--        about.runModalLoop();
-+         //AboutBox about(this->getParentComponent());
-+         //about.runModalLoop();
+         AboutBox about(this->getParentComponent());
+         about.runModalLoop();
          //[/UserButtonCode_aboutButton]
-     }
+-    }
++    }*/
  
+     //[UserbuttonClicked_Post]
+     //[/UserbuttonClicked_Post]
 @@ -736,7 +736,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
          PopupMenu popup;
          popup.addItem(1, "Send current program to DX7");
@@ -173,7 +162,7 @@ index 38bc0a4..9ea1345 100644
  }
  //[/MiscUserCode]
 diff --git a/Source/OperatorEditor.cpp b/Source/OperatorEditor.cpp
-index b55d637..08b606d 100644
+index b55d637..1ce77d9 100644
 --- a/Source/OperatorEditor.cpp
 +++ b/Source/OperatorEditor.cpp
 @@ -580,7 +580,8 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
@@ -196,7 +185,7 @@ index b55d637..08b606d 100644
      }
  }
 diff --git a/Source/PluginEditor.cpp b/Source/PluginEditor.cpp
-index 4f7d324..be64de9 100644
+index 9d58f39..d650ada 100644
 --- a/Source/PluginEditor.cpp
 +++ b/Source/PluginEditor.cpp
 @@ -125,10 +125,10 @@ void DexedAudioProcessorEditor::loadCart(File file) {
@@ -228,35 +217,39 @@ index 4f7d324..be64de9 100644
  }
  
  void DexedAudioProcessorEditor::tuningShow() {
-@@ -285,6 +285,7 @@ void DexedAudioProcessorEditor::rebuildProgramCombobox() {
+@@ -285,6 +285,9 @@ void DexedAudioProcessorEditor::rebuildProgramCombobox() {
  }
  
  void DexedAudioProcessorEditor::storeProgram() {
-+    /*
++#if ANDROID
++    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Not Supported", "We don't support storing proglrams on Android build yet.");
++#else
      String currentName = Cartridge::normalizePgmName((const char *) processor->data+145);
      Cartridge destSysex = processor->currentCart;
      File *externalFile = NULL;
-@@ -383,6 +384,7 @@ void DexedAudioProcessorEditor::storeProgram() {
+@@ -383,6 +386,7 @@ void DexedAudioProcessorEditor::storeProgram() {
      if ( externalFile != NULL )
          delete externalFile;
      cartManager.resetActiveSysex();
-+    */
++#endif
  }
  
  class MidiCCListener: public AlertWindow, Value::Listener {
-@@ -412,8 +414,10 @@ public :
+@@ -412,8 +416,12 @@ public :
  };
  
  void DexedAudioProcessorEditor::discoverMidiCC(Ctrl *ctrl) {
-+    /*
++#if ANDROID
++    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Not Supported", "We don't support storing proglrams on Android build yet.");
++#else
      MidiCCListener ccListener(this, ctrl);
      ccListener.runModalLoop();
-+    */
++#endif
  }
  
  bool DexedAudioProcessorEditor::isInterestedInFileDrag (const StringArray &files)
 diff --git a/Source/PluginParam.cpp b/Source/PluginParam.cpp
-index c789ef1..7677e42 100644
+index c789ef1..dce9677 100644
 --- a/Source/PluginParam.cpp
 +++ b/Source/PluginParam.cpp
 @@ -294,16 +294,17 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
@@ -264,7 +257,7 @@ index c789ef1..7677e42 100644
          popup.addItem(2, "Clear midi CC mapping");
  
 -        switch(popup.show()) {
-+        popup.showMenuAsync(PopupMenu::Options{},[&](int result) {
++        popup.showMenuAsync(PopupMenu::Options{}, [&](int result) {
 +        switch(result) {
              case 1:
                  parent->mappedMidiCC.removeValue(this);
