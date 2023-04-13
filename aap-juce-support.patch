@@ -1,26 +1,8 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6a1afa7..8c41135 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -25,6 +25,13 @@ endif()
- #static linking in Windows
- set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
- 
-+# build settings for JUCEAAP
-+add_definitions(
-+        "-DJUCEAAP_USE_UNIQUE_ID=1"
-+        "-DJUCEAAP_HOSTED_PARAMETER=1"
-+        "-DJUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1"
-+)
-+
- # include JUCE *AFTER* the MSVC runtime and so on is set up
- set(DEXED_JUCE_PATH "${CMAKE_SOURCE_DIR}/libs/JUCE" CACHE STRING "Path to JUCE library source tree")
- add_subdirectory(${DEXED_JUCE_PATH} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..95a579a 100644
+index f98357c..f8b4e23 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -110,3 +110,45 @@ PUBLIC
+@@ -110,3 +110,54 @@ PUBLIC
      juce::juce_recommended_config_flags
      juce::juce_recommended_lto_flags
  )
@@ -38,6 +20,12 @@ index f98357c..95a579a 100644
 +		aap_audio_processors
 +		)
 +
++add_compile_definitions(
++		[[JUCEAAP_USE_UNIQUE_ID=1]]
++		[[JUCEAAP_HOSTED_PARAMETER=1]]
++		[[JUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1]]
++)
++
 +if (ANDROID)
 +add_library("cpufeatures" STATIC "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
 +set_source_files_properties("${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c" PROPERTIES COMPILE_FLAGS "-Wno-sign-conversion -Wno-gnu-statement-expression")
@@ -51,10 +39,13 @@ index f98357c..95a579a 100644
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 +
-+add_compile_definitions([[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]]
++add_compile_definitions(
++		[[JUCE_ANDROID=1]]
++		[[JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1]]
 +		[[JUCE_PUSH_NOTIFICATIONS_ACTIVITY="com/rmsl/juce/JuceActivity"]]
 +		[[JUCE_PUSH_NOTIFICATIONS=1]]
-+		[[JUCE_USE_ANDROID_OBOE_STABILIZED_CALLBACK=1]])
++		[[JUCE_USE_ANDROID_OBOE_STABILIZED_CALLBACK=1]]
++)
 +
 +target_link_libraries(${BaseTargetName}
 +    PRIVATE
