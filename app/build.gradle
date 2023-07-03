@@ -10,12 +10,11 @@ kotlin {
 android {
     namespace "org.androidaudioplugin.ports.juce.dexed"
 
-    compileSdkVersion 33
+    compileSdk = 33
 
     defaultConfig {
         applicationId "org.androidaudioplugin.ports.juce.dexed"
-        minSdkVersion    29
-        targetSdkVersion 33
+        minSdk = 29
         externalNativeBuild {
             cmake {
                 arguments "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : "$projectDir/../external/aap-core"}",
@@ -40,6 +39,7 @@ android {
         implementation libs.aap.core
         implementation libs.aap.midi.device.service
         implementation libs.aap.ui.web
+        implementation libs.aap.ui.compose
     }
 
     externalNativeBuild {
@@ -54,11 +54,5 @@ android {
     }
 
     ndkVersion libs.versions.ndk.get()
-
-    // FIXME: remove this once we upgraded to Gradle 8.1 (AGP issue)
-    compileOptions {
-        sourceCompatibility = 11
-        targetCompatibility = 11
-    }
 }
 
