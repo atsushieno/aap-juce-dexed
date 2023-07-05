@@ -3,10 +3,6 @@ plugins {
     id 'kotlin-android'
 }
 
-kotlin {
-    jvmToolchain(11)
-}
-
 android {
     namespace "org.androidaudioplugin.ports.juce.dexed"
 
@@ -45,7 +41,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
+            version libs.versions.cmake.get()
         }
     }
 
@@ -54,5 +50,9 @@ android {
     }
 
     ndkVersion libs.versions.ndk.get()
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
