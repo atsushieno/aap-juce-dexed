@@ -3,19 +3,26 @@ plugins {
     id 'kotlin-android'
 }
 
-android {
-    namespace "org.androidaudioplugin.ports.juce.dexed"
+kotlin {
+    jvmToolchain(11)
+}
 
-    compileSdk = 33
+android {
+    namespace = "org.androidaudioplugin.ports.juce.dexed"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "org.androidaudioplugin.ports.juce.dexed"
         minSdk = 29
+        targetSdk = 34
+        ndk {
+            abiFilters "x86_64", "arm64-v8a"
+        }
         externalNativeBuild {
             cmake {
-                arguments "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : "$projectDir/../external/aap-core"}",
+                arguments "-DANDROID=1",
+                        "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : "$projectDir/../external/aap-core"}",
                         "-DAAP_JUCE_DIR=${System.env.AAP_JUCE_DIR != null ? System.env.AAP_JUCE_DIR : "$projectDir/../external/aap-juce"}",
-                        "-DANDROID_STL=c++_shared", "-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_ARM_NEON=ON"
+                        "-DANDROID_STL=c++_shared", "-DANDROID_CPP_FEATURES=exceptions rtti"
             }
         }
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -23,10 +30,10 @@ android {
 
     sourceSets {
         main.java.srcDirs +=
-            ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app",
-             "../external/aap-juce/java"]
+                ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app",
+                 "../external/aap-juce/java"]
         main.res.srcDirs +=
-            []
+                []
     }
 
     dependencies {
@@ -36,6 +43,13 @@ android {
         implementation libs.aap.midi.device.service
         implementation libs.aap.ui.web
         implementation libs.aap.ui.compose
+        // switch to them when you want to debug into aap-core.
+        /*
+        implementation project(":androidaudioplugin")
+        implementation project(":androidaudioplugin-midi-device-service")
+        implementation project(":androidaudioplugin-ui-web")
+        implementation project(":androidaudioplugin-ui-compose")
+         */
     }
 
     externalNativeBuild {
@@ -51,8 +65,9 @@ android {
 
     ndkVersion libs.versions.ndk.get()
 
-    kotlinOptions {
-        jvmTarget = '1.8'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
