@@ -9,7 +9,7 @@ kotlin {
 
 android {
     namespace = "org.androidaudioplugin.ports.juce.dexed"
-    compileSdk = 34
+    compileSdkPreview = "VanillaIceCream"
 
     defaultConfig {
         minSdk = 29

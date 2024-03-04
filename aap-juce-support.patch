@@ -176,7 +176,7 @@ index b55d637..1ce77d9 100644
      }
  }
 diff --git a/Source/PluginEditor.cpp b/Source/PluginEditor.cpp
-index 9d58f39..d650ada 100644
+index 4f7d324..f6df78d 100644
 --- a/Source/PluginEditor.cpp
 +++ b/Source/PluginEditor.cpp
 @@ -125,10 +125,10 @@ void DexedAudioProcessorEditor::loadCart(File file) {
