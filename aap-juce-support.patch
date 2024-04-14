@@ -58,13 +58,13 @@ index f98357c..f8b4e23 100644
 +endif (ANDROID)
 +# <-- end JUCEAAP specific
 diff --git a/Source/CartManager.cpp b/Source/CartManager.cpp
-index 3bd0b1b..1d8c3c3 100644
+index 3bd0b1b..ace7056 100644
 --- a/Source/CartManager.cpp
 +++ b/Source/CartManager.cpp
 @@ -175,8 +175,9 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
      if ( buttonThatWasClicked == loadButton.get() ) {
          FileChooser fc ("Import original DX sysex...", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), "*.syx;*.SYX;*.*", 1);
- 
+         
 -        if ( fc.browseForFileToOpen())
 +        fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
              mainWindow->loadCart(fc.getResult());
@@ -75,7 +75,7 @@ index 3bd0b1b..1d8c3c3 100644
 @@ -229,7 +230,8 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
          menu.addSeparator();
          menu.addItem(1020, "Refresh");
- 
+         
 -        switch(menu.show()) {
 +        menu.showMenuAsync(PopupMenu::Options{}, [=](int result) {
 +        switch(result) {
