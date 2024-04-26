@@ -8,6 +8,8 @@ APP_BUILD_DIR=$(PWD)
 APP_SRC_DIR=$(PWD)/external/dexed
 JUCE_DIR=$(APP_SRC_DIR)/libs/JUCE
 
+APP_ICON=$(APP_SRC_DIR)/Resources/ui/dexedIcon.png
+
 APP_SHARED_CODE_LIBS="Source/$(APP_NAME)_artefacts/lib$(APP_NAME)_SharedCode.a  Resources/libDexedResources.a"
 
 
