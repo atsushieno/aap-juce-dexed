@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugins xmlns="urn:org.androidaudioplugin.core">
-  <plugin name="Dexed" category="Instrument" author="Digital Suburban"
-      developer="Digital Suburban" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
+  <plugin name="Dexed" category="Instrument"
+      developer="Digital Suburban / AAP Porting Project" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
       entrypoint="GetJuceAAPFactoryStandalone"
       gui:ui-view-factory="org.androidaudioplugin.ui.compose.ComposeAudioPluginViewFactory"
       xmlns:gui="urn://androidaudioplugin.org/extensions/gui">
     <extensions>
-      <extension uri="urn://androidaudioplugin.org/extensions/plugin-info/v2"/>
-      <extension uri="urn://androidaudioplugin.org/extensions/parameters/v2.1"/>
-      <extension uri="urn://androidaudioplugin.org/extensions/presets/v2"/>
-      <extension uri="urn://androidaudioplugin.org/extensions/state/v2"/>
-      <extension uri="urn://androidaudioplugin.org/extensions/midi2/v2"/>
-      <extension uri="urn://androidaudioplugin.org/extensions/gui/v2"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/plugin-info/v3"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/parameters/v3"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/presets/v3"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/state/v3"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/midi2/v3"/>
+      <extension uri="urn://androidaudioplugin.org/extensions/gui/v3"/>
     </extensions>
     <ports>
       <port direction="output" content="audio" name="Left"/>
