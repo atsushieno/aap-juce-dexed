@@ -1,8 +1,8 @@
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..f8b4e23 100644
+index f98357c..d7ceb8d 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -110,3 +110,54 @@ PUBLIC
+@@ -110,3 +110,56 @@ PUBLIC
      juce::juce_recommended_config_flags
      juce::juce_recommended_lto_flags
  )
@@ -35,6 +35,7 @@ index f98357c..f8b4e23 100644
 +find_library(android "android")
 +find_library(glesv2 "GLESv2")
 +find_library(egl "EGL")
++find_package(androidaudioplugin)
 +set(cpufeatures_lib "cpufeatures")
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -54,6 +55,7 @@ index f98357c..f8b4e23 100644
 +    ${glesv2}
 +    ${egl}
 +    ${cpufeatures_lib}
++	androidaudioplugin::androidaudioplugin
 +    )
 +endif (ANDROID)
 +# <-- end JUCEAAP specific

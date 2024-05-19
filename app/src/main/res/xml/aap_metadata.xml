@@ -4,7 +4,7 @@
   <plugin name="Dexed" category="Instrument"
       developer="Digital Suburban / AAP Porting Project" unique-id="juceaap:44657864" library="libDexed_Standalone.so"
       entrypoint="GetJuceAAPFactoryStandalone"
-      gui:ui-view-factory="org.androidaudioplugin.ui.compose.ComposeAudioPluginViewFactory"
+      gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory"
       xmlns:gui="urn://androidaudioplugin.org/extensions/gui">
     <extensions>
       <extension uri="urn://androidaudioplugin.org/extensions/plugin-info/v3"/>
