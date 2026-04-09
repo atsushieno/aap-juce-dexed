@@ -15,4 +15,8 @@ APP_SHARED_CODE_LIBS="Source/$(APP_NAME)_artefacts/lib$(APP_NAME)_SharedCode.a  
 
 PATCH_FILE=$(PWD)/aap-juce-support.patch
 
+# JUCE patches if any
+JUCE_PATCHES= \
+	$(shell pwd)/external/aap-juce/juce-patches/7.0.11/disable-cgwindowlistcreateimage.patch
+
 include $(AAP_JUCE_DIR)/Makefile.cmake-common
