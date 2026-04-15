@@ -1,8 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f81961f..fe28c05 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -19,7 +19,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+ #    set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer" CACHE STRING "" FORCE)
+ #    set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "XXXXXXXXXX" CACHE STRING "" FORCE)
+ else()
+-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version" FORCE)
++    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version" FORCE)
+ endif()
+ 
+ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index f98357c..d7ceb8d 100644
+index 3f06b02..45bd934 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -110,3 +110,56 @@ PUBLIC
+@@ -114,3 +114,54 @@ PUBLIC
      juce::juce_recommended_config_flags
      juce::juce_recommended_lto_flags
  )
@@ -35,7 +48,6 @@ index f98357c..d7ceb8d 100644
 +find_library(android "android")
 +find_library(glesv2 "GLESv2")
 +find_library(egl "EGL")
-+find_package(androidaudioplugin)
 +set(cpufeatures_lib "cpufeatures")
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -55,36 +67,37 @@ index f98357c..d7ceb8d 100644
 +    ${glesv2}
 +    ${egl}
 +    ${cpufeatures_lib}
-+	androidaudioplugin::androidaudioplugin
 +    )
 +endif (ANDROID)
 +# <-- end JUCEAAP specific
 diff --git a/Source/CartManager.cpp b/Source/CartManager.cpp
-index 3bd0b1b..ace7056 100644
+index 779026e..5417782 100644
 --- a/Source/CartManager.cpp
 +++ b/Source/CartManager.cpp
-@@ -175,8 +175,9 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
+@@ -265,10 +265,10 @@ void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
      if ( buttonThatWasClicked == loadButton.get() ) {
          FileChooser fc ("Import original DX sysex...", File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory), "*.syx;*.SYX;*.*", 1);
-         
--        if ( fc.browseForFileToOpen())
+ 
+-        if ( fc.browseForFileToOpen()) {
 +        fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
              mainWindow->loadCart(fc.getResult());
+             updateCartFilename();
+-        }
 +        });
          return;
      }
-     
-@@ -229,7 +230,8 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
+ 
+@@ -322,7 +322,8 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
          menu.addSeparator();
          menu.addItem(1020, "Refresh");
-         
+ 
 -        switch(menu.show()) {
 +        menu.showMenuAsync(PopupMenu::Options{}, [=](int result) {
 +        switch(result) {
          case 1000:
              file.revealToUser();
              break;
-@@ -239,7 +241,7 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
+@@ -332,7 +333,7 @@ void CartManager::fileClicked(const File& file, const MouseEvent& e) {
          case 1020:
              cartBrowserList->refresh();
              break;
@@ -93,7 +106,7 @@ index 3bd0b1b..ace7056 100644
          return;
      }
  }
-@@ -289,7 +291,8 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
+@@ -382,7 +383,8 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
      if ( source == activeCart.get() )
          menu.addItem(1010, "Send current sysex cartridge to DX7");
  
@@ -102,37 +115,21 @@ index 3bd0b1b..ace7056 100644
 +    switch(result)  {
          case 1000:
              uint8_t unpackPgm[161];
-             
-@@ -309,7 +312,7 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
+ 
+@@ -403,7 +405,7 @@ void CartManager::programRightClicked(ProgramListBox *source, int pos) {
          case 1010:
              mainWindow->processor->sendCurrentSysexCartridge();
              break;
 -    }
 +    }});
- 
  }
  
+ void CartManager::programDragged(ProgramListBox *destListBox, int dest, char *packedPgm) {
 diff --git a/Source/GlobalEditor.cpp b/Source/GlobalEditor.cpp
-index 38bc0a4..1be48ec 100644
+index 50aa618..fffa266 100644
 --- a/Source/GlobalEditor.cpp
 +++ b/Source/GlobalEditor.cpp
-@@ -648,13 +648,13 @@ void GlobalEditor::buttonClicked (juce::Button* buttonThatWasClicked)
-         repaint();
-         //[/UserButtonCode_monoMode]
-     }
--    else if (buttonThatWasClicked == aboutButton.get())
-+    /*else if (buttonThatWasClicked == aboutButton.get())
-     {
-         //[UserButtonCode_aboutButton] -- add your button handler code here..
-         AboutBox about(this->getParentComponent());
-         about.runModalLoop();
-         //[/UserButtonCode_aboutButton]
--    }
-+    }*/
- 
-     //[UserbuttonClicked_Post]
-     //[/UserbuttonClicked_Post]
-@@ -736,7 +736,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
+@@ -794,7 +794,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
          PopupMenu popup;
          popup.addItem(1, "Send current program to DX7");
  
@@ -141,7 +138,7 @@ index 38bc0a4..1be48ec 100644
          switch( p )
          {
          case 1:
-@@ -744,7 +744,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
+@@ -802,7 +802,7 @@ void GlobalEditor::mouseDown(const MouseEvent &e) {
             break;
          default:
              break;
@@ -151,12 +148,12 @@ index 38bc0a4..1be48ec 100644
  }
  //[/MiscUserCode]
 diff --git a/Source/OperatorEditor.cpp b/Source/OperatorEditor.cpp
-index b55d637..1ce77d9 100644
+index 426c016..939b795 100644
 --- a/Source/OperatorEditor.cpp
 +++ b/Source/OperatorEditor.cpp
-@@ -580,7 +580,8 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
-         popup.addSeparator();
-         popup.addItem(4, "Send current program to DX7");
+@@ -612,7 +612,8 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
+             popup.addItem(5, "Reset plugin UI scaling factor");
+         }
  
 -        switch(popup.show()) {
 +        popup.showMenuAsync(PopupMenu::Options{},[&](int result) {
@@ -164,9 +161,9 @@ index b55d637..1ce77d9 100644
              case 1:
                  processor->copyToClipboard(internalOp);
              break;
-@@ -596,7 +597,7 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
-             case 4:
-                 processor->sendCurrentSysexProgram();
+@@ -635,7 +636,7 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
+                     editor->resetZoomFactor();
+                 }
              break;
 -        }
 +        }});
@@ -174,12 +171,12 @@ index b55d637..1ce77d9 100644
      }
  }
 diff --git a/Source/PluginEditor.cpp b/Source/PluginEditor.cpp
-index 4f7d324..f6df78d 100644
+index 44ce786..4a322a6 100644
 --- a/Source/PluginEditor.cpp
 +++ b/Source/PluginEditor.cpp
-@@ -125,10 +125,10 @@ void DexedAudioProcessorEditor::loadCart(File file) {
+@@ -142,10 +142,10 @@ void DexedAudioProcessorEditor::loadCart(File file) {
      }
-     
+ 
      if ( rc != 0 ) {
 -        rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
 +        /*rc = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon, "Unable to find DX7 sysex cartridge in file",
@@ -189,8 +186,8 @@ index 4f7d324..f6df78d 100644
 +        if ( rc == 0 )*/
              return;
      }
-     
-@@ -145,13 +145,13 @@ void DexedAudioProcessorEditor::saveCart() {
+ 
+@@ -162,13 +162,13 @@ void DexedAudioProcessorEditor::saveCart() {
      File startFileName = processor->activeFileCartridge.exists() ? processor->activeFileCartridge : processor->dexedCartDir;
  
      FileChooser fc ("Export DX sysex...", processor->dexedCartDir, "*.syx;*.SYX", 1);
@@ -206,7 +203,7 @@ index 4f7d324..f6df78d 100644
  }
  
  void DexedAudioProcessorEditor::tuningShow() {
-@@ -285,6 +285,9 @@ void DexedAudioProcessorEditor::rebuildProgramCombobox() {
+@@ -322,6 +322,9 @@ void DexedAudioProcessorEditor::rebuildProgramCombobox() {
  }
  
  void DexedAudioProcessorEditor::storeProgram() {
@@ -216,7 +213,7 @@ index 4f7d324..f6df78d 100644
      String currentName = Cartridge::normalizePgmName((const char *) processor->data+145);
      Cartridge destSysex = processor->currentCart;
      File *externalFile = NULL;
-@@ -383,6 +386,7 @@ void DexedAudioProcessorEditor::storeProgram() {
+@@ -420,6 +423,7 @@ void DexedAudioProcessorEditor::storeProgram() {
      if ( externalFile != NULL )
          delete externalFile;
      cartManager.resetActiveSysex();
@@ -224,7 +221,7 @@ index 4f7d324..f6df78d 100644
  }
  
  class MidiCCListener: public AlertWindow, Value::Listener {
-@@ -412,8 +416,12 @@ public :
+@@ -449,8 +453,12 @@ public :
  };
  
  void DexedAudioProcessorEditor::discoverMidiCC(Ctrl *ctrl) {
@@ -236,14 +233,72 @@ index 4f7d324..f6df78d 100644
 +#endif
  }
  
- bool DexedAudioProcessorEditor::isInterestedInFileDrag (const StringArray &files)
+ float DexedAudioProcessorEditor::getLargestScaleFactor() {
+@@ -509,14 +517,14 @@ void DexedAudioProcessorEditor::filesDropped (const StringArray &files, int x, i
+         if (fn.endsWithIgnoreCase(".scl"))
+         {
+             if (filesize == 0) {
+-                AlertWindow::showMessageBox(
++                AlertWindow::showMessageBoxAsync(
+                     AlertWindow::WarningIcon,
+                     "File size error!",
+                     "File \'" + fn.toStdString() + "\' is empty."
+                 );
+             }
+             else if (filesize > MAX_SCL_KBM_FILE_SIZE) {
+-                AlertWindow::showMessageBox(
++                AlertWindow::showMessageBoxAsync(
+                     AlertWindow::WarningIcon,
+                     "File size error!",
+                     "File \'" + fn.toStdString() + "\' has " + std::to_string(filesize) + " bytes, exceeding the maximum limit ("+std::to_string(MAX_SCL_KBM_FILE_SIZE)+")."
+@@ -529,14 +537,14 @@ void DexedAudioProcessorEditor::filesDropped (const StringArray &files, int x, i
+         if (fn.endsWithIgnoreCase(".kbm"))
+         {
+             if (filesize == 0) {
+-                AlertWindow::showMessageBox(
++                AlertWindow::showMessageBoxAsync(
+                     AlertWindow::WarningIcon,
+                     "File size error!",
+                     "File \'" + fn.toStdString() + "\' is empty."
+                 );
+             }
+             else if (filesize > MAX_SCL_KBM_FILE_SIZE) {
+-                AlertWindow::showMessageBox(
++                AlertWindow::showMessageBoxAsync(
+                     AlertWindow::WarningIcon,
+                     "File size error!",
+                     "File \'" + fn.toStdString() + "\' has " + std::to_string(filesize) + " bytes, exceeding the maximum limit (" + std::to_string(MAX_SCL_KBM_FILE_SIZE) + ")."
+@@ -548,20 +556,20 @@ void DexedAudioProcessorEditor::filesDropped (const StringArray &files, int x, i
+         }
+     }
+     catch (const std::ios_base::failure& ex) {
+-        AlertWindow::showMessageBox(
++        AlertWindow::showMessageBoxAsync(
+             AlertWindow::WarningIcon, 
+             "I/O error!", 
+             "Related to file \'" + fn.toStdString() + "\', an exception (std::ios_base::failure) occured: " + ex.what()
+         );
+     }
+     catch (std::bad_alloc& ex) {
+-        AlertWindow::showMessageBox(
++        AlertWindow::showMessageBoxAsync(
+             AlertWindow::WarningIcon, 
+             "I/O error!", 
+             "Related to file \'" + fn.toStdString() + "\', an exception (std::bad_alloc) occured: " + ex.what());
+     }
+     catch (...) {
+-        AlertWindow::showMessageBox(
++        AlertWindow::showMessageBoxAsync(
+             AlertWindow::WarningIcon, 
+             "I/O error!", 
+             "Related to file \'"+fn.toStdString()+"\', an unknown exception occured.");
 diff --git a/Source/PluginParam.cpp b/Source/PluginParam.cpp
-index c789ef1..dce9677 100644
+index c824bb7..f9a56a6 100644
 --- a/Source/PluginParam.cpp
 +++ b/Source/PluginParam.cpp
-@@ -294,16 +294,17 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
+@@ -142,16 +142,17 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
+             popup.addItem(5, "Reset plugin UI scaling factor");
          }
-         popup.addItem(2, "Clear midi CC mapping");
  
 -        switch(popup.show()) {
 +        popup.showMenuAsync(PopupMenu::Options{}, [&](int result) {
@@ -260,44 +315,121 @@ index c789ef1..dce9677 100644
 -                }
 +                //}
                  break;
-             case 3:
+             case 3: {
                  AudioProcessorEditor *editor = parent->getActiveEditor();
-@@ -313,7 +314,7 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
-                 DexedAudioProcessorEditor *dexedEditor = (DexedAudioProcessorEditor *) editor;
-                 dexedEditor->discoverMidiCC(this);
-                 break;
--        }
-+        }});
+@@ -171,6 +172,7 @@ void Ctrl::mouseDown(const juce::MouseEvent &event) {
+             }
+             break;
+         }
++        });
      }
  }
  
 diff --git a/Source/PluginProcessor.cpp b/Source/PluginProcessor.cpp
-index f2c3817..3c17402 100644
+index 369bfd8..ec0630b 100644
 --- a/Source/PluginProcessor.cpp
 +++ b/Source/PluginProcessor.cpp
-@@ -858,11 +858,10 @@ void DexedAudioProcessor::retuneToStandard()
+@@ -914,27 +914,24 @@ void DexedAudioProcessor::applySCLTuning() {
+     File s;
  
- void DexedAudioProcessor::applySCLTuning() {
-     FileChooser fc( "Please select an SCL File", File(), "*.scl" );
--    if( fc.browseForFileToOpen() )
--    {
+     // loop to enforce the proper selection
+-    for (;;) {
+-        // open file chooser dialog
+-        if (!fc.browseForFileToOpen())
+-            // User cancelled
+-            return;
++    // open file chooser dialog
 +    fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
-         auto s = fc.getResult();
+         s = fc.getResult();
+ 
+         // enforce file extenstion ''.scl''.
+         // (reason: the extension ''.scl'' is mandatory according to 
+         // ''https://www.huygens-fokker.org/scala/scl_format.html''
+         if (s.getFileExtension() != ".scl") {
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file type!", "Only files with the \".scl\" extension (in lowercase!) are allowed.");
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Invalid file type!", "Only files with the \".scl\" extension (in lowercase!) are allowed.");
++            applySCLTuning();
+         }
+ 
+         // enforce to select file below the max limit16KB sized files
+         if (s.getSize() > MAX_SCL_KBM_FILE_SIZE) {
+             std::string msg;
+             msg = "File size exceeded the maximum limit of " + std::to_string(MAX_SCL_KBM_FILE_SIZE) + " bytes.";
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "File size error!", msg);
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File size error!", msg);
++            applySCLTuning();
+         }
+ 
+         // enforce to select non-empty file
+@@ -942,16 +939,14 @@ void DexedAudioProcessor::applySCLTuning() {
+         if (s.getSize() == 0) {
+             std::string msg;
+             msg = "File is empty.";
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "File size error!", msg);
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File size error!", msg);
++            applySCLTuning();
+         }
+ 
+         // try to apply the SCL file 
          applySCLTuning(s);
+ 
+-        // exit the loop
+-        break;
 -    }
 +    });
  }
  
  void DexedAudioProcessor::applySCLTuning(File s) {
-@@ -887,11 +886,10 @@ void DexedAudioProcessor::applySCLTuning(std::string sclcontents) {
+@@ -991,26 +986,23 @@ void DexedAudioProcessor::applyKBMMapping() {
+     File s;
  
- void DexedAudioProcessor::applyKBMMapping() {
-     FileChooser fc( "Please select an KBM File", File(), "*.kbm" );
--    if( fc.browseForFileToOpen() )
--    {
+     // loop to enforce the proper selection
+-    for (;;) {
+-        // invoke file chooser dialog
+-        if (!fc.browseForFileToOpen())            
+-            return; // User cancelled
 +    fc.launchAsync(juce::FileBrowserComponent::openMode, [&](const juce::FileChooser &_fc) {
-         auto s = fc.getResult();
+         s = fc.getResult();
+ 
+         // enforce file extenstion ''.kbm''.
+         // (reason: the extension ''.kbm'' is mandatory according to 
+         // ''https://www.huygens-fokker.org/scala/scl_format.html''
+         if (s.getFileExtension() != ".kbm") {
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file type!", "Only files with the \".kbm\" extension (in lowercase!) are allowed.");
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Invalid file type!", "Only files with the \".kbm\" extension (in lowercase!) are allowed.");
++            applyKBMMapping();
+         }
+ 
+         // enforce to select file below the max limit16KB sized files
+         if (s.getSize() > MAX_SCL_KBM_FILE_SIZE) {
+             std::string msg;
+             msg = "File size exceeded the maximum limit of " + std::to_string(MAX_SCL_KBM_FILE_SIZE) + " bytes.";
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "File size error!", msg);
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File size error!", msg);
++            applyKBMMapping();
+         }
+ 
+         // enforce to select non-empty file
+@@ -1018,16 +1010,13 @@ void DexedAudioProcessor::applyKBMMapping() {
+         if (s.getSize() == 0) {
+             std::string msg;
+             msg = "File is empty.";
+-            AlertWindow::showMessageBox(AlertWindow::WarningIcon, "File size error!", msg);
+-            continue;
++            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "File size error!", msg);
++            applyKBMMapping();
+         }
+ 
+         // try to apply KBM mapping
          applyKBMMapping(s);
+-
+-        // exit the loop
+-        break;
 -    }
 +    });
  }
@@ -305,33 +437,35 @@ index f2c3817..3c17402 100644
  void DexedAudioProcessor::applyKBMMapping( File s )
 Submodule libs/surgesynthteam_tuningui contains modified content
 diff --git a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
-index fa17052..79b104d 100644
+index fa17052..be7287b 100644
 --- a/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
 +++ b/libs/surgesynthteam_tuningui/surgesynthteam_tuningui.h
-@@ -179,15 +179,18 @@ public:
-     virtual void cellClicked (int rowNumber, int columnId, const juce::MouseEvent & e) override {
-         if( e.mods.isRightButtonDown() )
+@@ -181,15 +181,16 @@ public:
          {
-+#if !ANDROID // TODO: implement
              rmbMenu->clear();
              rmbMenu->addItem(1, "Export to CSV" );
-             auto result = rmbMenu->show();
-             if( result == 1 )
-                 exportToCSV();
-+#endif
+-            auto result = rmbMenu->show();
+-            if( result == 1 )
+-                exportToCSV();
++            rmbMenu->showMenuAsync({}, [&](int result) {
++                if( result == 1 )
++                    exportToCSV();
++            });
          }
      }
  
      virtual void exportToCSV() {
-+#if !ANDROID // TODO: implement
          juce::FileChooser fc( "Export CSV to...", juce::File(), "*.csv" );
-         if( fc.browseForFileToSave(true) )
+-        if( fc.browseForFileToSave(true) )
++        fc.launchAsync(0, [&](const juce::FileChooser &fc)
          {
-@@ -207,6 +210,7 @@ public:
+             auto f = fc.getResult();
+             std::ostringstream csvStream;
+@@ -207,6 +208,7 @@ public:
  
              }
          }
-+#endif
++        );
      }
         
  

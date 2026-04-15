@@ -8,13 +8,16 @@ APP_BUILD_DIR=$(PWD)
 APP_SRC_DIR=$(PWD)/external/dexed
 JUCE_DIR=$(APP_SRC_DIR)/libs/JUCE
 
-APP_ICON=$(APP_SRC_DIR)/Resources/ui/dexedIcon.png
+APP_ICON=$(APP_SRC_DIR)/assets/ui/dexedIcon.png
 
 APP_SHARED_CODE_LIBS="Source/$(APP_NAME)_artefacts/lib$(APP_NAME)_SharedCode.a  Resources/libDexedResources.a"
 
 
 PATCH_FILE=$(PWD)/aap-juce-support.patch
-PATCH_DEPTH=1
+
+# JUCE patches if any
+JUCE_PATCHES= \
+	$(shell pwd)/external/aap-juce/juce-patches/7.0.11/disable-cgwindowlistcreateimage.patch
 
 JUCE_PATCHES=$(AAP_JUCE_DIR)/juce-patches/7.0.6/support-plugin-ui.patch
 JUCE_PATCH_DEPTH=1
