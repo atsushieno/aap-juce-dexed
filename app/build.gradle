@@ -28,8 +28,10 @@ android {
     }
 
     sourceSets {
+        // We tweak some Java classes compiled into the app apk so that they can be loaded before falling back to the original implementation in JUCE.
         main.java.srcDirs +=
-                ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app",
+                ["../external/dexed/libs/JUCE/modules/juce_gui_basics/native/java/app",
+                 "../external/dexed/libs/JUCE/modules/juce_gui_basics/native/javaopt/app",
                  "../external/aap-juce/java"]
         main.res.srcDirs +=
                 []
@@ -71,4 +73,3 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 }
-
