@@ -48,6 +48,7 @@ index 3f06b02..45bd934 100644
 +find_library(android "android")
 +find_library(glesv2 "GLESv2")
 +find_library(egl "EGL")
++find_package(androidaudioplugin REQUIRED CONFIG)
 +set(cpufeatures_lib "cpufeatures")
 +set(oboe_lib "oboe")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -67,6 +68,7 @@ index 3f06b02..45bd934 100644
 +    ${glesv2}
 +    ${egl}
 +    ${cpufeatures_lib}
++	androidaudioplugin::androidaudioplugin
 +    )
 +endif (ANDROID)
 +# <-- end JUCEAAP specific
