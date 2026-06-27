@@ -45,6 +45,7 @@ android {
         implementation libs.aap.ui.web
         implementation libs.aap.ui.compose
         implementation libs.aap.ui.compose.app
+        implementation libs.aap.js.controller
         // switch to them when you want to debug into aap-core.
         /*
         implementation project(":androidaudioplugin")
