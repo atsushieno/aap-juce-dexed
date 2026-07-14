@@ -8,3 +8,4 @@ jobs:
   build-dist:
     # note that usually we recommend to use versioned reference. We do not keep compatibility across commits.
     uses: atsushieno/aap-juce/.github/workflows/build-dist-with-cmake.yml@main
+    secrets: inherit

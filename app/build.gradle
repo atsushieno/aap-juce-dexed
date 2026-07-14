@@ -13,6 +13,7 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInteger()
+        targetSdk = libs.versions.android.targetSdk.get().toInteger()
         ndk {
             abiFilters "x86_64", "arm64-v8a"
         }
