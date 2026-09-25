@@ -19,7 +19,8 @@ PATCH_FILE=$(PWD)/aap-juce-support.patch
 JUCE_PATCHES= \
 	$(AAP_JUCE_DIR)/juce-patches/7.0.11/disable-cgwindowlistcreateimage.patch \
 	$(AAP_JUCE_DIR)/juce-patches/7.0.6/support-plugin-ui.patch \
-	$(AAP_JUCE_DIR)/juce-patches/7.0.11/juce-component-peer-view-touch.patch
+	$(AAP_JUCE_DIR)/juce-patches/7.0.11/juce-component-peer-view-touch.patch \
+	$(AAP_JUCE_DIR)/juce-patches/7.0.11/component-peer-view-unregister-lifecycle-callbacks.patch
 JUCE_PATCH_DEPTH=1
 
 include $(AAP_JUCE_DIR)/Makefile.cmake-common
